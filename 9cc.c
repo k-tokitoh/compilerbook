@@ -107,7 +107,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (*p == '+' || *p == '-') {
+    if (strchr("+-()", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
@@ -181,6 +181,12 @@ Node *expr() {
 }
 
 Node *primary() {
+  if (consume('(')) {
+    Node *node = expr();
+    expect(')');
+    return node;
+  }
+
   // 数値のはず
   Node *node = new_node_num(expect_number());
   return node;
