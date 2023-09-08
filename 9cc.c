@@ -107,7 +107,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (strchr("+-()", *p)) {
+    if (strchr("+-*/()", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
@@ -133,6 +133,8 @@ Token *tokenize(char *p) {
 typedef enum {
   ND_ADD, // +
   ND_SUB, // -
+  ND_MUL, // *
+  ND_DIV, // /
   ND_NUM, // 整数
 } NodeKind;
 
@@ -162,19 +164,36 @@ Node *new_node_num(int val) {
 }
 
 Node *expr();
+Node *mul();
 Node *primary();
 
 Node *expr() {
+  // expr は mul + mul + mul + ... という構造をしている
+  // 最初の mul を取り出す
+  Node *node = mul();
+
+  // `+primary`をみつけて前のnumと統合したひとつうえのnodeを返す、というのを繰り返す
+  for (;;) {
+    if (consume('+'))
+      node = new_node(ND_ADD, node, mul());
+    else if (consume('-'))
+      node = new_node(ND_SUB, node, mul());
+    else
+      return node;
+  }
+}
+
+Node *mul() {
   // expr は primary + primary + primary + ... という構造をしている
   // 最初の primary を取り出す
   Node *node = primary();
 
   // `+primary`をみつけて前のnumと統合したひとつうえのnodeを返す、というのを繰り返す
   for (;;) {
-    if (consume('+'))
-      node = new_node(ND_ADD, node, primary());
-    else if (consume('-'))
-      node = new_node(ND_SUB, node, primary());
+    if (consume('*'))
+      node = new_node(ND_MUL, node, primary());
+    else if (consume('/'))
+      node = new_node(ND_DIV, node, primary());
     else
       return node;
   }
@@ -214,6 +233,13 @@ void gen(Node *node) {
     break;
   case ND_SUB:
     printf("  sub rax, rdi\n");
+    break;
+  case ND_MUL:
+    printf("  imul rax, rdi\n");
+    break;
+  case ND_DIV:
+    printf("  cqo\n");
+    printf("  idiv rdi\n");
     break;
   }
 
