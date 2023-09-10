@@ -121,7 +121,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (strchr("+-*/()", *p)) {
+    if (strchr("+-*/()<", *p)) {
       cur = new_token(TK_RESERVED, cur, p, 1);
       p += 1;
       continue;
@@ -154,6 +154,7 @@ typedef enum {
   ND_DIV, // /
   ND_EQ,  // ==
   ND_NE,  // !=
+  ND_LT,  // <
   ND_NUM, // 整数
 } NodeKind;
 
@@ -184,6 +185,7 @@ Node *new_node_num(int val) {
 
 Node *expr();
 Node *equality();
+Node *relational();
 Node *add();
 Node *mul();
 Node *unary();
@@ -195,15 +197,29 @@ Node *expr() {
   return node;
 }
 
-// equality = add ("==" add)*
+// equality = relational ("==" relational)*
 Node *equality() {
-  Node *node = add();
+  Node *node = relational();
 
   for (;;) {
     if (consume("=="))
-      node = new_node(ND_EQ, node, add());
+      node = new_node(ND_EQ, node, relational());
     if (consume("!="))
-      node = new_node(ND_NE, node, add());
+      node = new_node(ND_NE, node, relational());
+    else
+      return node;
+  }
+}
+
+Node *relational() {
+  // relational は add < add という構造をしている
+  // 最初の add を取り出す
+  Node *node = add();
+
+  // `<add`をみつけて前のmulと統合したひとつうえのnodeを返す、というのを繰り返す
+  for (;;) {
+    if (consume("<"))
+      node = new_node(ND_LT, node, add());
     else
       return node;
   }
@@ -307,6 +323,11 @@ void gen(Node *node) {
     break;
   case ND_NUM:
     error("子を持つnodeがND_NUMであることは不正です");
+    break;
+  case ND_LT:
+    printf("  cmp rax, rdi\n");
+    printf("  setl al\n");
+    printf("  movzb rax, al\n");
     break;
   }
 

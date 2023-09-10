@@ -28,6 +28,7 @@ assert 1 "2+2 == 4"
 assert 0 "2+2 == 5"
 assert 0 "2+2 != 4"
 assert 1 "2+2 != 5"
-
+assert 1 "1<2"
+assert 0 "2<1"
 
 echo OK
