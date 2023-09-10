@@ -41,6 +41,18 @@ void gen(Node *node) {
     return;
   }
 
+  // nodeがreturnだった場合
+  if (node->kind == ND_RETURN) {
+    gen(node->lhs);             // 左辺（returnにつづくexpr）の値をスタックトップにpushに置く
+    printf("  pop rax\n");      // 左辺（returnにつづくexpr）の値をraxに取り出す
+    printf("  mov rsp, rbp\n"); // 後始末
+    printf("  pop rbp\n");      // 後始末
+    printf("  ret\n");          // main関数自体から離脱する
+    printf("  pop rax\n");
+    printf("  ret\n");
+    return;
+  }
+
   gen(node->lhs);
   gen(node->rhs);
 

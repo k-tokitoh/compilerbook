@@ -110,6 +110,12 @@ Token *tokenize(char *p) {
       continue;
     }
 
+    if (starts_with(p, "return") && !isalnum(p[6])) {
+      cur = new_token(TK_RESERVED, cur, p, 6);
+      p += 6;
+      continue;
+    }
+
     if (starts_with(p, "==") || starts_with(p, "!=") || starts_with(p, "<=") ||
         starts_with(p, ">=")) {
       cur = new_token(TK_RESERVED, cur, p, 2);
