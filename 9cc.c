@@ -115,7 +115,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (starts_with(p, "==") || starts_with(p, "!=")) {
+    if (starts_with(p, "==") || starts_with(p, "!=") || starts_with(p, "<=")) {
       cur = new_token(TK_RESERVED, cur, p, 2);
       p += 2;
       continue;
@@ -155,6 +155,7 @@ typedef enum {
   ND_EQ,  // ==
   ND_NE,  // !=
   ND_LT,  // <
+  ND_LE,  // <=
   ND_NUM, // 整数
 } NodeKind;
 
@@ -206,6 +207,8 @@ Node *equality() {
       node = new_node(ND_EQ, node, relational());
     if (consume("!="))
       node = new_node(ND_NE, node, relational());
+    if (consume("<="))
+      node = new_node(ND_LE, node, relational());
     else
       return node;
   }
@@ -329,6 +332,11 @@ void gen(Node *node) {
   case ND_LT:
     printf("  cmp rax, rdi\n");
     printf("  setl al\n");
+    printf("  movzb rax, al\n");
+    break;
+  case ND_LE:
+    printf("  cmp rax, rdi\n");
+    printf("  setle al\n");
     printf("  movzb rax, al\n");
     break;
   }
