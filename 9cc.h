@@ -25,6 +25,7 @@ void error(char *fmt, ...);
 bool consume(char *op);
 void expect(char *op);
 int expect_number();
+bool at_eof();
 Token *tokenize(char *p);
 
 extern char *user_input;
@@ -55,8 +56,10 @@ struct Node {
   int val;       // kindがND_NUMの場合のみ使う
 };
 
-Node *stmt();
+void program();
+
+extern Node *code[];
 
 ////////////////////////////////////////////////////// codegen
 
-void codegen(Node *node);
+void codegen();

@@ -15,6 +15,9 @@ Node *new_node_num(int val) {
   return node;
 }
 
+Node *code[100];
+
+void program();
 Node *stmt();
 Node *expr();
 Node *equality();
@@ -23,6 +26,14 @@ Node *add();
 Node *mul();
 Node *unary();
 Node *primary();
+
+// program = stmt*;
+void program() {
+  int i = 0;
+  while (!at_eof())
+    code[i++] = stmt();
+  code[i] = NULL;
+}
 
 // stmt = expr;
 Node *stmt() {

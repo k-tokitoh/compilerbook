@@ -55,17 +55,19 @@ void gen(Node *node) {
   printf("  push rax\n");
 }
 
-void codegen(Node *node) {
+void codegen() {
   // アセンブリの冒頭部分を出力
   printf(".intel_syntax noprefix\n");
   printf(".global main\n");
   printf("main:\n");
 
   // 抽象構文木を下りながらコード生成
-  gen(node);
+  for (int i = 0; code[i]; i++) {
+    gen(code[i]);
+    printf("  pop rax\n");
+  }
 
   // スタックトップに式全体の値が残っているはずなので
   // それをRAXにロードして関数からの返り値とする
-  printf("  pop rax\n");
   printf("  ret\n");
 }

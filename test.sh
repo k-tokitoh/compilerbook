@@ -38,6 +38,6 @@ assert 1 "2<=3;"
 assert 1 "2>=1;"
 assert 1 "2>=2;"
 assert 0 "2>=3;"
-
+assert 3 "1;2;3;"
 
 echo OK
