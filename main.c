@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
 
   // トークナイズする
   token = tokenize(argv[1]);
-  Node *node = expr();
+  Node *node = stmt();
 
   codegen(node);
   return 0;

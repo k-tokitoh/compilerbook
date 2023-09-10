@@ -55,7 +55,7 @@ struct Node {
   int val;       // kindがND_NUMの場合のみ使う
 };
 
-Node *expr();
+Node *stmt();
 
 ////////////////////////////////////////////////////// codegen
 
