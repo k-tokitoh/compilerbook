@@ -24,5 +24,8 @@ assert 46 "2*3+32/4*5"
 assert 17 "-3+20"
 assert 2 "-(3-5)"
 assert 15 "-3*-5"
+assert 1 "2+2 == 4"
+assert 0 "2+2 == 5"
+
 
 echo OK
