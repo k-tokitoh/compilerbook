@@ -39,5 +39,8 @@ assert 1 "2>=1;"
 assert 1 "2>=2;"
 assert 0 "2>=3;"
 assert 3 "1;2;3;"
+assert 1 "x=1;x;"
+assert 1 "x=y=1;x;"
+assert 1 "x=y=1;y;"
 
 echo OK

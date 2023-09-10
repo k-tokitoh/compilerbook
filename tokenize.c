@@ -62,7 +62,7 @@ void expect(char *op) {
   // 期待した記号でなかったらエラー
   if (token->kind != TK_RESERVED || strlen(op) != token->len ||
       memcmp(op, token->str, token->len))
-    error_at(token->str, "'%c'ではありません", op);
+    error_at(token->str, "'%s'ではありません", op);
   token = token->next;
 }
 
