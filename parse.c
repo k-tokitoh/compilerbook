@@ -15,11 +15,20 @@ Node *new_node_num(int val) {
   return node;
 }
 
+Node *new_node_lvar(Token *t) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_LVAR;
+  char c = *(t->str);
+  node->offset = (c - 'a' + 1) * 8;
+  return node;
+}
+
 Node *code[100];
 
 void program();
 Node *stmt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relational();
 Node *add();
@@ -42,9 +51,17 @@ Node *stmt() {
   return node;
 }
 
-// expr = equality
+// expr = assign
 Node *expr() {
+  Node *node = assign();
+  return node;
+}
+
+// equality ("=" assign)?
+Node *assign() {
   Node *node = equality();
+  if (consume("="))
+    node = new_node(ND_ASSIGN, node, assign());
   return node;
 }
 
@@ -125,12 +142,17 @@ Node *unary() {
   return primary();
 }
 
-// primary = num | "(" expr ")"
+// primary = num | ident | "(" expr ")"
 Node *primary() {
   if (consume("(")) {
     Node *node = expr();
     expect(")");
     return node;
+  }
+
+  Token *tok = consume_ident();
+  if (tok) {
+    return new_node_lvar(tok);
   }
 
   // 数値のはず
