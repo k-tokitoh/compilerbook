@@ -121,7 +121,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (strchr("+-*/()<", *p)) {
+    if (strchr("+-*/()<>", *p)) {
       cur = new_token(TK_RESERVED, cur, p, 1);
       p += 1;
       continue;
@@ -220,6 +220,8 @@ Node *relational() {
   for (;;) {
     if (consume("<"))
       node = new_node(ND_LT, node, add());
+    if (consume(">"))
+      node = new_node(ND_LT, add(), node);
     else
       return node;
   }
