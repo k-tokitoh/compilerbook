@@ -19,10 +19,11 @@ struct Token {
   Token *next;    // 次の入力トークン
   int val;        // kindがTK_NUMの場合、その数値
   char *str;      // トークン文字列の開始位置
-  int len; // トークンの長さ（記号の場合のみ意味をもつ）
+  int len; // トークンの長さ（記号, 識別子の場合のみ意味をもつ）
 };
 
 void error(char *fmt, ...);
+char *strndup(char *p, int len);
 bool consume(char *op);
 Token *consume_ident();
 void expect(char *op);
@@ -34,6 +35,15 @@ extern char *user_input;
 extern Token *token;
 
 ////////////////////////////////////////////////////// parse
+
+// Local variable
+typedef struct LVar LVar;
+struct LVar {
+  LVar *
+      next; // 連結リストで辿って全部尽くして調べることで、変数名の重複などを確認できる
+  char *name; // Variable name
+  int offset; // Offset from RBP(register base pointer)
+};
 
 // 抽象構文木のノードの種類
 typedef enum {
@@ -58,12 +68,13 @@ struct Node {
   Node *lhs;     // 左辺
   Node *rhs;     // 右辺
   int val;       // kindがND_NUMの場合のみ使う
-  int offset;    // kindがND_LVARの場合のみ使う
+  LVar *lvar;    // kindがND_LVARの場合のみ使う
 };
 
 void program();
 
 extern Node *code[];
+extern LVar *locals;
 
 ////////////////////////////////////////////////////// codegen
 

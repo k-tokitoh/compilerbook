@@ -42,5 +42,6 @@ assert 3 "1;2;3;"
 assert 1 "x=1;x;"
 assert 1 "x=y=1;x;"
 assert 1 "x=y=1;y;"
+assert 3 "foo=3;bar=5;foo;"
 
 echo OK

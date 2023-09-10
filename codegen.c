@@ -8,7 +8,7 @@ void gen_lval(Node *node) {
 
   // 変数の格納されたアドレス番号を算出
   printf("  mov rax, rbp\n");
-  printf("  sub rax, %d\n", node->offset);
+  printf("  sub rax, %d\n", node->lvar->offset);
   // 変数の格納されたアドレス番号をスタックトップにpush
   printf("  push rax\n");
 }
@@ -96,10 +96,10 @@ void codegen() {
   printf("main:\n");
 
   // プロローグ
-  // 変数26個分の領域を確保する
+  // 変数の領域をざっくり確保する
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 208\n");
+  printf("  sub rsp, 4096\n");
 
   // 抽象構文木を下りながらコード生成
   for (int i = 0; code[i]; i++) {

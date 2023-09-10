@@ -12,6 +12,12 @@ int main(int argc, char **argv) {
   token = tokenize(argv[1]);
   program();
 
+  int offset = 0;
+  for (LVar *var = locals; var; var = var->next) {
+    offset += 8;
+    var->offset = offset;
+  }
+
   codegen();
 
   return 0;

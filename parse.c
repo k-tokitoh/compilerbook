@@ -1,4 +1,17 @@
 #include "9cc.h"
+#include <stdio.h>
+#include <string.h>
+
+LVar *locals = NULL;
+
+// Find a local variable by name.
+LVar *find_lvar(Token *tok) {
+  for (LVar *var = locals; var; var = var->next) {
+    if (strlen(var->name) == tok->len && !memcmp(tok->str, var->name, tok->len))
+      return var;
+  }
+  return NULL;
+}
 
 Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
@@ -18,11 +31,18 @@ Node *new_node_num(int val) {
   return node;
 }
 
-Node *new_node_lvar(Token *t) {
+Node *new_node_lvar(LVar *lvar) {
   Node *node = new_node(ND_LVAR);
-  char c = *(t->str);
-  node->offset = (c - 'a' + 1) * 8;
+  node->lvar = lvar;
   return node;
+}
+
+LVar *push_var(char *name) {
+  LVar *lvar = calloc(1, sizeof(LVar));
+  lvar->next = locals;
+  lvar->name = name;
+  locals = lvar;
+  return lvar;
 }
 
 Node *code[100];
@@ -38,7 +58,7 @@ Node *mul();
 Node *unary();
 Node *primary();
 
-// program = stmt*;
+// program = stmt*
 void program() {
   int i = 0;
   while (!at_eof())
@@ -154,7 +174,10 @@ Node *primary() {
 
   Token *tok = consume_ident();
   if (tok) {
-    return new_node_lvar(tok);
+    LVar *lvar = find_lvar(tok);
+    if (!lvar)
+      lvar = push_var(strndup(tok->str, tok->len));
+    return new_node_lvar(lvar);
   }
 
   // 数値のはず
