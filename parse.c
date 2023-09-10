@@ -1,23 +1,25 @@
 #include "9cc.h"
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
+Node *new_node(NodeKind kind) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
+}
+
+Node *new_node_binary(NodeKind kind, Node *lhs, Node *rhs) {
+  Node *node = new_node(kind);
   node->lhs = lhs;
   node->rhs = rhs;
   return node;
 }
 
 Node *new_node_num(int val) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_NUM;
+  Node *node = new_node(ND_NUM);
   node->val = val;
   return node;
 }
 
 Node *new_node_lvar(Token *t) {
-  Node *node = calloc(1, sizeof(Node));
-  node->kind = ND_LVAR;
+  Node *node = new_node(ND_LVAR);
   char c = *(t->str);
   node->offset = (c - 'a' + 1) * 8;
   return node;
@@ -61,7 +63,7 @@ Node *expr() {
 Node *assign() {
   Node *node = equality();
   if (consume("="))
-    node = new_node(ND_ASSIGN, node, assign());
+    node = new_node_binary(ND_ASSIGN, node, assign());
   return node;
 }
 
@@ -71,13 +73,13 @@ Node *equality() {
 
   for (;;) {
     if (consume("=="))
-      node = new_node(ND_EQ, node, relational());
+      node = new_node_binary(ND_EQ, node, relational());
     if (consume("!="))
-      node = new_node(ND_NE, node, relational());
+      node = new_node_binary(ND_NE, node, relational());
     if (consume("<="))
-      node = new_node(ND_LE, node, relational());
+      node = new_node_binary(ND_LE, node, relational());
     if (consume(">="))
-      node = new_node(ND_LE, relational(), node);
+      node = new_node_binary(ND_LE, relational(), node);
     else
       return node;
   }
@@ -91,9 +93,9 @@ Node *relational() {
   // `<add`をみつけて前のmulと統合したひとつうえのnodeを返す、というのを繰り返す
   for (;;) {
     if (consume("<"))
-      node = new_node(ND_LT, node, add());
+      node = new_node_binary(ND_LT, node, add());
     if (consume(">"))
-      node = new_node(ND_LT, add(), node);
+      node = new_node_binary(ND_LT, add(), node);
     else
       return node;
   }
@@ -108,9 +110,9 @@ Node *add() {
   // `+mul`をみつけて前のmulと統合したひとつうえのnodeを返す、というのを繰り返す
   for (;;) {
     if (consume("+"))
-      node = new_node(ND_ADD, node, mul());
+      node = new_node_binary(ND_ADD, node, mul());
     else if (consume("-"))
-      node = new_node(ND_SUB, node, mul());
+      node = new_node_binary(ND_SUB, node, mul());
     else
       return node;
   }
@@ -125,9 +127,9 @@ Node *mul() {
   // `+unary`をみつけて前のnumと統合したひとつうえのnodeを返す、というのを繰り返す
   for (;;) {
     if (consume("*"))
-      node = new_node(ND_MUL, node, unary());
+      node = new_node_binary(ND_MUL, node, unary());
     else if (consume("/"))
-      node = new_node(ND_DIV, node, unary());
+      node = new_node_binary(ND_DIV, node, unary());
     else
       return node;
   }
@@ -138,7 +140,7 @@ Node *unary() {
   if (consume("+"))
     return primary();
   if (consume("-"))
-    return new_node(ND_SUB, new_node_num(0), primary());
+    return new_node_binary(ND_SUB, new_node_num(0), primary());
   return primary();
 }
 
