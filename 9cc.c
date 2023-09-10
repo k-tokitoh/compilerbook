@@ -297,6 +297,9 @@ void gen(Node *node) {
     printf("  sete al\n");
     printf("  movzb rax, al\n");
     break;
+  case ND_NUM:
+    error("子を持つnodeがND_NUMであることは不正です");
+    break;
   }
 
   printf("  push rax\n");
