@@ -26,6 +26,8 @@ assert 2 "-(3-5)"
 assert 15 "-3*-5"
 assert 1 "2+2 == 4"
 assert 0 "2+2 == 5"
+assert 0 "2+2 != 4"
+assert 1 "2+2 != 5"
 
 
 echo OK

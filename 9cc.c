@@ -115,7 +115,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    if (starts_with(p, "==")) {
+    if (starts_with(p, "==") || starts_with(p, "!=")) {
       cur = new_token(TK_RESERVED, cur, p, 2);
       p += 2;
       continue;
@@ -153,6 +153,7 @@ typedef enum {
   ND_MUL, // *
   ND_DIV, // /
   ND_EQ,  // ==
+  ND_NE,  // !=
   ND_NUM, // 整数
 } NodeKind;
 
@@ -201,6 +202,8 @@ Node *equality() {
   for (;;) {
     if (consume("=="))
       node = new_node(ND_EQ, node, add());
+    if (consume("!="))
+      node = new_node(ND_NE, node, add());
     else
       return node;
   }
@@ -295,6 +298,11 @@ void gen(Node *node) {
   case ND_EQ:
     printf("  cmp rax, rdi\n");
     printf("  sete al\n");
+    printf("  movzb rax, al\n");
+    break;
+  case ND_NE:
+    printf("  cmp rax, rdi\n");
+    printf("  setne al\n");
     printf("  movzb rax, al\n");
     break;
   case ND_NUM:
