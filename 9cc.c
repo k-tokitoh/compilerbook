@@ -168,6 +168,7 @@ Node *mul();
 Node *unary();
 Node *primary();
 
+// expr       = equality
 Node *expr() {
   // expr は mul + mul + mul + ... という構造をしている
   // 最初の mul を取り出す
@@ -184,6 +185,7 @@ Node *expr() {
   }
 }
 
+// mul        = unary ("*" unary | "/" unary)*
 Node *mul() {
   // expr は primary + primary + primary + ... という構造をしている
   // 最初の primary を取り出す
@@ -200,6 +202,7 @@ Node *mul() {
   }
 }
 
+// unary      = ("+" | "-")? primary
 Node *unary() {
   if (consume('+'))
     return primary();
@@ -208,6 +211,7 @@ Node *unary() {
   return primary();
 }
 
+// primary    = num | "(" expr ")"
 Node *primary() {
   if (consume('(')) {
     Node *node = expr();
